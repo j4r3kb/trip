@@ -1,0 +1,10 @@
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="App\Employee\Domain\Entity\Employee"
+            table="employee"
+            repository-class="App\Employee\Infrastructure\Doctrine\DoctrineEmployeeRepository">
+        <id name="id" type="string" length="36" />
+    </entity>
+</doctrine-mapping>

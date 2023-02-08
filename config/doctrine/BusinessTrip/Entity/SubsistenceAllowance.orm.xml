@@ -1,0 +1,12 @@
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="App\BusinessTrip\Domain\Entity\SubsistenceAllowance"
+            table="subsistence_allowance"
+            repository-class="App\BusinessTrip\Infrastructure\Repository\SubsistenceAllowanceDoctrineRepository">
+        <id name="countryAlpha2" type="string" length="2" />
+        <field name="allowanceAmount" type="integer" />
+        <field name="allowanceCurrency" type="string" length="3" />
+    </entity>
+</doctrine-mapping>

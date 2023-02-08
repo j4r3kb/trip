@@ -1,0 +1,15 @@
+<doctrine-mapping xmlns="https://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="https://doctrine-project.org/schemas/orm/doctrine-mapping
+                          https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <entity name="App\BusinessTrip\Domain\Entity\BusinessTrip"
+            table="business_trip"
+            repository-class="App\BusinessTrip\Infrastructure\Repository\BusinessTripDoctrineRepository">
+        <id name="id" type="string" length="36" />
+        <field name="subsistenceAllowanceId" type="string" length="36" />
+        <field name="employeeId" type="string" length="36" />
+        <embedded name="duration"
+                  class="App\BusinessTrip\Domain\ValueObject\BusinessTripDuration"
+                  use-column-prefix="false" />
+    </entity>
+</doctrine-mapping>
