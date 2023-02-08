@@ -9,11 +9,11 @@ use App\BusinessTrip\Domain\ValueObject\BusinessTripId;
 use App\BusinessTrip\Domain\ValueObject\SubsistenceAllowanceId;
 use App\Employee\Domain\ValueObject\EmployeeId;
 use Brick\Money\Money;
-use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 
 class BusinessTrip
 {
-    private const MIN_HOURS = 8;
+    private const MIN_DAY_HOURS = 8;
 
     private const EXTRA_RATE_DAYS_THRESHOLD = 7;
 
@@ -76,28 +76,33 @@ class BusinessTrip
         $startDate = $this->duration->startDate();
         $endDate = $this->duration->endDate();
 
-        $nextDayOrEndDate = min($startDate->addDay()->startOfDay(), $endDate);
-
-        $subsistenceDays = (int) ($startDate->isWeekday()
-            && ($startDate->diffInHours($nextDayOrEndDate) >= static::MIN_HOURS));
-
-        if ($startDate->isSameDay($endDate) === false) {
-            $endDayOrStartDate = max($endDate->startOfDay(), $startDate);
-
-            $subsistenceDays += $nextDayOrEndDate->diffInDaysFiltered(
-                fn(CarbonImmutable $day) => $day->isWeekday(),
-                $endDayOrStartDate
-            );
-
-            $subsistenceDays += (int) ($endDate->diffInHours($endDayOrStartDate) >= static::MIN_HOURS);
-            $calendarDaysAboveThreshold = max(
-                $startDate->startOfDay()->diffInDays($endDate->startOfDay()) - static::EXTRA_RATE_DAYS_THRESHOLD,
-                0)
-            ;
-            $subsistenceDays = $calendarDaysAboveThreshold * static::EXTRA_RATE_MULTIPLIER
-                + $subsistenceDays - $calendarDaysAboveThreshold;
+        $subsistenceDays = 0;
+        if ($startDate->startOfDay()->diffInWeeks($endDate->startOfDay()) > 0) {
+            $startPlusSevenDays = $startDate->addDays(7)->endOfDay();
+            $startPlusEightDays = $startDate->addDays(8)->startOfDay();
+            $subsistenceDays += $this->calculateSubsistenceDays($startDate, $startPlusSevenDays);
+            $subsistenceDays += $this->calculateSubsistenceDays($startPlusEightDays, $endDate)
+                * static::EXTRA_RATE_MULTIPLIER;
+        } else {
+            $subsistenceDays += $this->calculateSubsistenceDays($startDate, $endDate);
         }
 
         return $subsistenceAllowance->allowance()->multipliedBy($subsistenceDays);
+    }
+
+    private function calculateSubsistenceDays(CarbonInterface $startDate, CarbonInterface $endDate): int
+    {
+        $nextDayOrEndDate = min($startDate->addDay()->startOfDay(), $endDate);
+
+        $subsistenceDays = (int) ($startDate->isWeekday()
+            && ($startDate->diffInHours($nextDayOrEndDate) >= static::MIN_DAY_HOURS));
+
+        if ($startDate->isSameDay($endDate) === false) {
+            $endDayOrStartDate = max($endDate->startOfDay(), $startDate);
+            $subsistenceDays += $nextDayOrEndDate->diffInWeekdays($endDayOrStartDate);
+            $subsistenceDays += (int) ($endDate->diffInHours($endDayOrStartDate) >= static::MIN_DAY_HOURS);
+        }
+
+        return $subsistenceDays;
     }
 }

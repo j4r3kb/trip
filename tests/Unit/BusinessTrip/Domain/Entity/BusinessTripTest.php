@@ -9,13 +9,20 @@ use App\BusinessTrip\Domain\Entity\SubsistenceAllowance;
 use App\BusinessTrip\Domain\ValueObject\BusinessTripDuration;
 use App\BusinessTrip\Domain\ValueObject\SubsistenceAllowanceId;
 use App\Employee\Domain\ValueObject\EmployeeId;
-use Brick\Money\Money;
 use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
 use PHPUnit\Framework\TestCase;
 
 class BusinessTripTest extends TestCase
 {
-    public function testOverlapsWithReturnsTrueWhenTwoBusinessTripsOverlap(): void
+    /**
+     * @dataProvider durationDataProvider
+     */
+    public function testOverlapsWithReturnsProperResult(
+        CarbonInterface $startDate,
+        CarbonInterface $endDate,
+        bool $expectedResult
+    ): void
     {
         $businessTripOne = BusinessTrip::create(
             EmployeeId::create(),
@@ -28,71 +35,18 @@ class BusinessTripTest extends TestCase
         $businessTripTwo = BusinessTrip::create(
             EmployeeId::create(),
             SubsistenceAllowanceId::create('pl'),
-            BusinessTripDuration::create(
-                CarbonImmutable::parse('2020-01-10 08:00:00'),
-                CarbonImmutable::parse('2020-01-15 08:00:01')
-            )
-        );
-        $businessTripThree = BusinessTrip::create(
-            EmployeeId::create(),
-            SubsistenceAllowanceId::create('pl'),
-            BusinessTripDuration::create(
-                CarbonImmutable::parse('2020-01-20 15:59:59'),
-                CarbonImmutable::parse('2020-01-25 12:00:00')
-            )
+            BusinessTripDuration::create($startDate, $endDate)
         );
 
-        $this->assertTrue(
-            $businessTripOne->overlapsWith($businessTripTwo)
-        );
-
-        $this->assertTrue(
-            $businessTripOne->overlapsWith($businessTripThree)
-        );
-    }
-
-    public function testOverlapsWithReturnsFalseWhenTwoBusinessTripsDoNotOverlap(): void
-    {
-        $businessTripOne = BusinessTrip::create(
-            EmployeeId::create(),
-            SubsistenceAllowanceId::create('pl'),
-            BusinessTripDuration::create(
-                CarbonImmutable::parse('2020-01-15 08:00:00'),
-                CarbonImmutable::parse('2020-01-20 16:00:00')
-            )
-        );
-        $businessTripTwo = BusinessTrip::create(
-            EmployeeId::create(),
-            SubsistenceAllowanceId::create('pl'),
-            BusinessTripDuration::create(
-                CarbonImmutable::parse('2020-01-10 08:00:00'),
-                CarbonImmutable::parse('2020-01-15 08:00:00')
-            )
-        );
-        $businessTripThree = BusinessTrip::create(
-            EmployeeId::create(),
-            SubsistenceAllowanceId::create('pl'),
-            BusinessTripDuration::create(
-                CarbonImmutable::parse('2020-01-20 16:00:00'),
-                CarbonImmutable::parse('2020-01-25 12:00:00')
-            )
-        );
-
-        $this->assertFalse(
-            $businessTripOne->overlapsWith($businessTripTwo)
-        );
-
-        $this->assertFalse(
-            $businessTripOne->overlapsWith($businessTripThree)
-        );
+        $this->assertEquals($expectedResult, $businessTripOne->overlapsWith($businessTripTwo));
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider allowanceDataProvider
      */
     public function testAllowanceDueIsCalculatedProperly(
-        CarbonImmutable $startDate,
-        CarbonImmutable $endDate,
+        CarbonInterface $startDate,
+        CarbonInterface $endDate,
         int $expectedAmount
     ): void
     {
@@ -103,23 +57,47 @@ class BusinessTripTest extends TestCase
             BusinessTripDuration::create($startDate, $endDate)
         );
 
-        $this->assertTrue(
-            Money::of($expectedAmount, 'PLN')->isEqualTo($businessTrip->allowanceDue($subsistenceAllowance))
-        );
+        $this->assertEquals($expectedAmount, $businessTrip->allowanceDue($subsistenceAllowance)->getAmount()->toInt());
     }
 
-    private function dataProvider(): array
+    private function durationDataProvider(): array
     {
         return [
-//            '2023-01-06 16:00:01 - 2023-01-16 07:59:59' => [
-//                CarbonImmutable::parse('2023-01-06 16:00:01'),
-//                CarbonImmutable::parse('2023-01-16 07:59:59'),
-//                700,
-//            ],
+            '2020-01-10 08:00:00 - 2020-01-15 08:00:00' => [
+                CarbonImmutable::parse('2020-01-10 08:00:00'),
+                CarbonImmutable::parse('2020-01-15 08:00:00'),
+                false,
+            ],
+            '2020-01-20 16:00:00 - 2020-01-25 12:00:00' => [
+                CarbonImmutable::parse('2020-01-20 16:00:00'),
+                CarbonImmutable::parse('2020-01-25 12:00:00'),
+                false
+            ],
+            '2020-01-10 08:00:00 - 2020-01-15 08:00:01' => [
+                CarbonImmutable::parse('2020-01-10 08:00:00'),
+                CarbonImmutable::parse('2020-01-15 08:00:01'),
+                true,
+            ],
+            '2020-01-20 15:59:59 - 2020-01-25 12:00:00' => [
+                CarbonImmutable::parse('2020-01-20 15:59:59'),
+                CarbonImmutable::parse('2020-01-25 12:00:00'),
+                true,
+            ],
+        ];
+    }
+
+    private function allowanceDataProvider(): array
+    {
+        return [
+            '2023-01-06 16:00:01 - 2023-01-16 07:59:59' => [
+                CarbonImmutable::parse('2023-01-06 16:00:01'),
+                CarbonImmutable::parse('2023-01-16 07:59:59'),
+                500,
+            ],
             '2023-01-06 16:00:00 - 2023-01-16 08:00:00' => [
                 CarbonImmutable::parse('2023-01-06 16:00:00'),
-                CarbonImmutable::parse('2023-01-16 08:00:00'),
-                800,
+                CarbonImmutable::parse('2023-01-23 08:00:00'),
+                1800,
             ],
             '2023-01-24 16:00:01 - 2023-01-25 07:59:59' => [
                 CarbonImmutable::parse('2023-01-24 16:00:01'),
