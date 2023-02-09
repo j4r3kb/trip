@@ -8,6 +8,7 @@ use App\BusinessTrip\Application\Command\AddSubsistenceAllowanceCommand;
 use App\BusinessTrip\Application\Command\AddSubsistenceAllowanceHandler;
 use App\BusinessTrip\Domain\Entity\SubsistenceAllowance;
 use App\BusinessTrip\Domain\Repository\SubsistenceAllowanceRepository;
+use App\BusinessTrip\Domain\ValueObject\SubsistenceAllowanceId;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AddSubsistenceAllowanceHandlerTest extends KernelTestCase
@@ -24,7 +25,7 @@ class AddSubsistenceAllowanceHandlerTest extends KernelTestCase
         $this->assertIsString($command->createdId());
         $this->assertInstanceOf(
             SubsistenceAllowance::class,
-            $subsistenceAllowanceRepository->findOne('pl')
+            $subsistenceAllowanceRepository->findOne(SubsistenceAllowanceId::fromString('pl'))
         );
     }
 }

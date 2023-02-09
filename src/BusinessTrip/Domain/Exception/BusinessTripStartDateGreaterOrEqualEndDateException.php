@@ -16,7 +16,8 @@ class BusinessTripStartDateGreaterOrEqualEndDateException extends DomainExceptio
                 'Start date %s is greater or equal to end date %s',
                 $startDate->format('Y-m-d H:i:s'),
                 $endDate->format('Y-m-d H:i:s')
-            )
+            ),
+            400
         );
 
     }

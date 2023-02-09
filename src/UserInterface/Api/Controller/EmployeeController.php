@@ -32,7 +32,7 @@ class EmployeeController
                 'employeeId' => $employeeId,
                 '_links' => [
                     new Link(
-                        $this->router->generate('employee-business-trip-add'),
+                        $this->router->generate('employee-business-trip-add', ['employeeId' => $employeeId]),
                         Request::METHOD_POST,
                         'add business trip for employee'
                     ),

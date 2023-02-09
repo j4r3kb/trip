@@ -4,12 +4,14 @@ employee-add:
   methods: POST
 
 employee-business-trip-add:
-  path: /employee/business-trip
+  path: /employee/{employeeId}/business-trip
   controller: App\UserInterface\Api\Controller\BusinessTripController::add
   methods: POST
+  requirements:
+    employeeId: '\S+'
 
 employee-business-trip-list:
-  path: /employee/business-trip/{employeeId}
+  path: /employee/{employeeId}/business-trip
   controller: App\UserInterface\Api\Controller\BusinessTripController::list
   methods: GET
   requirements:

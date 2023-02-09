@@ -6,6 +6,7 @@ namespace App\BusinessTrip\Infrastructure\Repository;
 
 use App\BusinessTrip\Domain\Entity\SubsistenceAllowance;
 use App\BusinessTrip\Domain\Repository\SubsistenceAllowanceRepository;
+use App\BusinessTrip\Domain\ValueObject\SubsistenceAllowanceId;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -22,8 +23,8 @@ class SubsistenceAllowanceDoctrineRepository extends ServiceEntityRepository imp
         $em->persist($subsistenceAllowance);
     }
 
-    public function findOne(string $countryAlpha2): ?SubsistenceAllowance
+    public function findOne(SubsistenceAllowanceId $id): ?SubsistenceAllowance
     {
-        return $this->find($countryAlpha2);
+        return $this->find($id);
     }
 }

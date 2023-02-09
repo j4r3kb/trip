@@ -6,9 +6,9 @@ namespace App\BusinessTrip\Domain\Entity;
 
 use App\BusinessTrip\Domain\Exception\AllowanceAmountLowerThanMinimumException;
 use App\BusinessTrip\Domain\Exception\InvalidAlpha2CountryCodeException;
+use App\BusinessTrip\Domain\ValueObject\AllowancePerDay;
 use App\BusinessTrip\Domain\ValueObject\SubsistenceAllowanceId;
 use Brick\Money\Currency;
-use Brick\Money\Money;
 use League\ISO3166\Exception\DomainException;
 use League\ISO3166\Exception\OutOfBoundsException;
 use League\ISO3166\ISO3166;
@@ -17,10 +17,13 @@ class SubsistenceAllowance
 {
     private readonly string $countryAlpha2;
 
+    private readonly int $allowanceAmount;
+
+    private readonly string $allowanceCurrency;
+
     private function __construct(
         SubsistenceAllowanceId $countryAlpha2,
-        private readonly int $allowanceAmount,
-        private readonly string $allowanceCurrency
+        public readonly AllowancePerDay $allowancePerDay
     )
     {
         $this->countryAlpha2 = $countryAlpha2->__toString();
@@ -28,36 +31,35 @@ class SubsistenceAllowance
 
     public static function create(
         string $countryAlpha2,
-        int $allowanceAmount,
-        ?string $allowanceCurrency = null
+        int $amountPerDay,
+        ?string $currency = null
     ): static
     {
+        $countryAlpha2 = mb_strtolower($countryAlpha2);
         try {
             $country = (new ISO3166())->alpha2($countryAlpha2);
         } catch (OutOfBoundsException | DomainException) {
             throw InvalidAlpha2CountryCodeException::create($countryAlpha2);
         }
 
-        if ($allowanceAmount <= 0) { // this limit could be set f.e. by policy
-            throw AllowanceAmountLowerThanMinimumException::create($allowanceAmount);
+        if ($amountPerDay <= 0) { // this limit could be set f.e. by policy
+            throw AllowanceAmountLowerThanMinimumException::create($amountPerDay);
         }
 
-        if ($allowanceCurrency) {
-            $currency = Currency::of($allowanceCurrency)->getCurrencyCode();
+        if ($currency) {
+            $currency = Currency::of($currency)->getCurrencyCode();
         } else {
             $currency = current($country['currency']);
         }
 
-        return new static(SubsistenceAllowanceId::create($countryAlpha2), $allowanceAmount, $currency);
+        return new static(
+            SubsistenceAllowanceId::fromString($countryAlpha2),
+            AllowancePerDay::create($amountPerDay, $currency)
+        );
     }
 
     public function id(): SubsistenceAllowanceId
     {
-        return SubsistenceAllowanceId::create($this->countryAlpha2);
-    }
-
-    public function allowance(): Money
-    {
-        return Money::of($this->allowanceAmount, $this->allowanceCurrency);
+        return SubsistenceAllowanceId::fromString($this->countryAlpha2);
     }
 }

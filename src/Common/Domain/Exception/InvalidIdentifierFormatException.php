@@ -10,6 +10,6 @@ class InvalidIdentifierFormatException extends RuntimeException
 {
     public static function create(string $value): static
     {
-        return new static(sprintf('Given identifier %s is not UUID', $value));
+        return new static(sprintf('Given identifier %s is not UUID', $value), 400);
     }
 }

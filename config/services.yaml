@@ -16,6 +16,7 @@ services:
     App\:
         resource: '../src/'
         exclude:
+            - '../src/**/*DTO.php'
             - '../src/**/*Exception.php'
             - '../src/**/*View.php'
             - '../src/**/Application/Command/*Command.php'
@@ -28,3 +29,7 @@ services:
     App\UserInterface\Api\Controller\:
         resource: '../src/UserInterface/Api/Controller/'
         tags: ['controller.service_arguments']
+
+    App\Common\Infrastructure\DataFixtures\:
+        resource: '../src/Common/Infrastructure/DataFixtures/'
+        tags: ['doctrine.fixture.orm']

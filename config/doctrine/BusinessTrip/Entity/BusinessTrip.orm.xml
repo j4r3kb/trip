@@ -6,10 +6,13 @@
             table="business_trip"
             repository-class="App\BusinessTrip\Infrastructure\Repository\BusinessTripDoctrineRepository">
         <id name="id" type="string" length="36" />
-        <field name="subsistenceAllowanceId" type="string" length="36" />
         <field name="employeeId" type="string" length="36" />
+        <field name="countryCode" type="string" length="2" />
         <embedded name="duration"
                   class="App\BusinessTrip\Domain\ValueObject\BusinessTripDuration"
                   use-column-prefix="false" />
+        <embedded name="allowanceDue"
+                  class="App\BusinessTrip\Domain\ValueObject\AllowanceDue"
+                  column-prefix="allowance_due_" />
     </entity>
 </doctrine-mapping>

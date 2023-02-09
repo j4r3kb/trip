@@ -10,6 +10,6 @@ class AllowanceAmountLowerThanMinimumException extends DomainException
 {
     public static function create(int $amount): static
     {
-        return new static('Amount of %d is lower than minimum allowance');
+        return new static('Amount of %d is lower than minimum allowance', 400);
     }
 }

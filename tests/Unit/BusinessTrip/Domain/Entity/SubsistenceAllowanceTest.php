@@ -27,9 +27,9 @@ class SubsistenceAllowanceTest extends TestCase
 
     public function testCountryDefaultCurrencyIsUsedWhenNoneProvided(): void
     {
-        $allowance = SubsistenceAllowance::create('pl', 100);
+        $subsistenceAllowance = SubsistenceAllowance::create('pl', 100);
         $this->assertTrue(
-            Money::of(100, 'PLN')->isEqualTo($allowance->allowance())
+            Money::of(100, 'PLN')->isEqualTo($subsistenceAllowance->allowancePerDay->money())
         );
     }
 
@@ -37,7 +37,7 @@ class SubsistenceAllowanceTest extends TestCase
     {
         $subsistenceAllowance = SubsistenceAllowance::create('pl', 100, 'EUR');
         $this->assertTrue(
-            Money::of(100, 'EUR')->isEqualTo($subsistenceAllowance->allowance())
+            Money::of(100, 'EUR')->isEqualTo($subsistenceAllowance->allowancePerDay->money())
         );
     }
 

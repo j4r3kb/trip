@@ -9,4 +9,13 @@ use App\Employee\Application\Query\EmployeeQuery;
 
 class EmployeeDbalQuery extends AbstractDbalQuery implements EmployeeQuery
 {
+    public function employeeExists(string $employeeId): bool
+    {
+        return (bool) $this->connection->executeQuery(
+            "SELECT EXISTS(SELECT 1 FROM employee WHERE id=:id)",
+            [
+                'id' => $employeeId
+            ]
+        )->fetchOne();
+    }
 }

@@ -29,6 +29,6 @@ class EmployeeControllerTest extends WebTestCase
     {
         parent::setUp();
         $this->client = $this->createClient();
-        $this->client->catchExceptions(false);
+        $this->client->catchExceptions(true);
     }
 }

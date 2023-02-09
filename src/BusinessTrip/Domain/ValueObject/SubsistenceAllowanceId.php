@@ -8,15 +8,15 @@ use Stringable;
 
 final class SubsistenceAllowanceId implements Stringable
 {
-    public function __construct(
+    private function __construct(
         private readonly string $value
     )
     {
     }
 
-    public static function create(string $countryAlpha2): self
+    public static function fromString(string $countryAlpha2): self
     {
-        return new self($countryAlpha2);
+        return new self(mb_strtolower($countryAlpha2));
     }
 
     public function __toString(): string

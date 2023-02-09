@@ -6,7 +6,8 @@
             table="subsistence_allowance"
             repository-class="App\BusinessTrip\Infrastructure\Repository\SubsistenceAllowanceDoctrineRepository">
         <id name="countryAlpha2" type="string" length="2" />
-        <field name="allowanceAmount" type="integer" />
-        <field name="allowanceCurrency" type="string" length="3" />
+        <embedded name="allowancePerDay"
+                  class="App\BusinessTrip\Domain\ValueObject\AllowancePerDay"
+                  column-prefix="allowance_" />
     </entity>
 </doctrine-mapping>
