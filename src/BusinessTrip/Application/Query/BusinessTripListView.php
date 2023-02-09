@@ -11,7 +11,7 @@ class BusinessTripListView implements JsonSerializable
     /**
      * @var BusinessTripView[] $items
      */
-    public array $items;
+    public array $items = [];
 
     public static function create(): static
     {
