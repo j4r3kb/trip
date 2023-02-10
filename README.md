@@ -10,8 +10,8 @@
 * `./app tests`
 
 # Usage
-* Add employee: `POST http://localhost:8888/employee` no payload
-* Add business trip for employee: `POST http://localhost:8888/employee/{employeeId}/business-trip` with payload
+* Add employee: `POST http://localhost:8888/employees` no payload
+* Add business trip for employee: `POST http://localhost:8888/employees/{employeeId}/business-trips` with payload
 ```
 {
     "startDate": "YYYY-MM-DD HH:MM:SS",
@@ -19,4 +19,4 @@
     "countryCode": "XX"
 }
 ```
-* List business trips of employee: `GET http://localhost:8888/employee/{employeeId}/business-trip`
+* List business trips of employee: `GET http://localhost:8888/employees/{employeeId}/business-trips`

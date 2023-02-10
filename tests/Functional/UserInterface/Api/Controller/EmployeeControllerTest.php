@@ -15,7 +15,7 @@ class EmployeeControllerTest extends WebTestCase
 
     public function testEmployeeIdIsReturnedWithStatus201AsResponseToPostRequest(): void
     {
-        $this->client->request(Request::METHOD_POST, '/employee');
+        $this->client->request(Request::METHOD_POST, '/employees');
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
         $this->assertResponseFormatSame('json');

@@ -31,7 +31,7 @@ class BusinessTripControllerTest extends WebTestCase
     {
         $this->client->request(
             Request::METHOD_POST,
-            sprintf('/employee/%s/business-trip', Uuid::v4()->toRfc4122()),
+            sprintf('/employees/%s/business-trips', Uuid::v4()->toRfc4122()),
             [],
             [],
             [
@@ -51,7 +51,7 @@ class BusinessTripControllerTest extends WebTestCase
 
         $this->client->request(
             Request::METHOD_GET,
-            sprintf('/employee/%s/business-trip', Uuid::v4()->toRfc4122())
+            sprintf('/employees/%s/business-trips', Uuid::v4()->toRfc4122())
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
@@ -62,7 +62,7 @@ class BusinessTripControllerTest extends WebTestCase
     {
         $this->client->request(
             Request::METHOD_POST,
-            sprintf('/employee/%s/business-trip', $this->employeeId),
+            sprintf('/employees/%s/business-trips', $this->employeeId),
             [],
             [],
             [
@@ -85,7 +85,7 @@ class BusinessTripControllerTest extends WebTestCase
     {
         $this->client->request(
             Request::METHOD_POST,
-            sprintf('/employee/%s/business-trip', $this->employeeId),
+            sprintf('/employees/%s/business-trips', $this->employeeId),
             [],
             [],
             [
@@ -108,7 +108,7 @@ class BusinessTripControllerTest extends WebTestCase
     {
         $this->client->request(
             Request::METHOD_POST,
-            sprintf('/employee/%s/business-trip', $this->employeeId),
+            sprintf('/employees/%s/business-trips', $this->employeeId),
             [],
             [],
             [
@@ -131,7 +131,7 @@ class BusinessTripControllerTest extends WebTestCase
     {
         $this->client->request(
             Request::METHOD_POST,
-            sprintf('/employee/%s/business-trip', $this->employeeId),
+            sprintf('/employees/%s/business-trips', $this->employeeId),
             [],
             [],
             [
@@ -171,7 +171,7 @@ class BusinessTripControllerTest extends WebTestCase
 
         $this->client->request(
             Request::METHOD_GET,
-            sprintf('/employee/%s/business-trip', $this->employeeId)
+            sprintf('/employees/%s/business-trips', $this->employeeId)
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);
