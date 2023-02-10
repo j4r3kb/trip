@@ -48,6 +48,14 @@ class BusinessTripControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
         $this->assertResponseFormatSame('json');
+
+        $this->client->request(
+            Request::METHOD_GET,
+            sprintf('/employee/%s/business-trip', Uuid::v4()->toRfc4122())
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);
+        $this->assertResponseFormatSame('json');
     }
 
     public function testReturns400WhenDateRangeIsInvalid(): void
@@ -145,6 +153,49 @@ class BusinessTripControllerTest extends WebTestCase
         $this->assertStringContainsString('_links', $content);
     }
 
+    public function testReturns200WithListOfBusinessTrips(): void
+    {
+        $container = $this->getContainer();
+        $businessTrip = BusinessTrip::create(
+            EmployeeId::fromString($this->employeeId),
+            'de',
+            BusinessTripDuration::create(
+                CarbonImmutable::parse('2023-01-15 08:00:00'),
+                CarbonImmutable::parse('2023-01-20 16:00:00')
+            ),
+            AllowancePerDay::create(25, 'PLN')
+        );
+        $businessTripRepository = $container->get(BusinessTripRepository::class);
+        $businessTripRepository->save($businessTrip);
+        $container->get(EntityManagerInterface::class)->flush();
+
+        $this->client->request(
+            Request::METHOD_GET,
+            sprintf('/employee/%s/business-trip', $this->employeeId)
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $this->assertResponseFormatSame('json');
+        $content = $this->client->getResponse()->getContent();
+        $this->assertJson($content);
+        $this->assertStringContainsString('businessTrips', $content);
+        $this->assertStringContainsString('_links', $content);
+        $data = json_decode($content, true);
+        $this->assertCount(2, $data['businessTrips']);
+        $lastTrip = $data['businessTrips'][0];
+        $this->assertEquals('2023-01-15 08:00:00', $lastTrip['startDate']);
+        $this->assertEquals('2023-01-20 16:00:00', $lastTrip['endDate']);
+        $this->assertEquals('DE', $lastTrip['countryCode']);
+        $this->assertEquals(125, $lastTrip['amountDue']);
+        $this->assertEquals('PLN', $lastTrip['currency']);
+        $previousTrip = $data['businessTrips'][1];
+        $this->assertEquals('2023-01-06 08:00:00', $previousTrip['startDate']);
+        $this->assertEquals('2023-01-14 16:00:00', $previousTrip['endDate']);
+        $this->assertEquals('PL', $previousTrip['countryCode']);
+        $this->assertEquals(600, $previousTrip['amountDue']);
+        $this->assertEquals('PLN', $previousTrip['currency']);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -158,8 +209,8 @@ class BusinessTripControllerTest extends WebTestCase
         $this->employeeId = $employee->id()->__toString();
         $employeeRepository->save($employee);
 
-        $subsistenceAllowance = SubsistenceAllowance::create('pl', 200);
-        $subsistenceAllowanceRepository->save($subsistenceAllowance);
+        $subsistenceAllowanceRepository->save(SubsistenceAllowance::create('pl', 20));
+        $subsistenceAllowanceRepository->save(SubsistenceAllowance::create('de', 25, 'PLN'));
 
         $businessTrip = BusinessTrip::create(
             EmployeeId::fromString($this->employeeId),
